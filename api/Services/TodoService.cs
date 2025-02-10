@@ -7,14 +7,9 @@ using api.Mappers;
 using api.Repository.Interface;
 namespace api.Services
 {
-    public class TodoService : ITodoService
+    public class TodoService(ITodoRepository todoRepository) : ITodoService
     {
-        private readonly ITodoRepository _todoRepository;
-
-        public TodoService(ITodoRepository todoRepository)
-        {
-            _todoRepository = todoRepository;
-        }
+        private readonly ITodoRepository _todoRepository = todoRepository;
 
         public async Task<TodoDto> AddTodoAsync(TodoRequest todoRequest)
         {

@@ -10,14 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Repository
 {
-    public class TodoRepository : ITodoRepository
+    public class TodoRepository(ApplicationDBContext context) : ITodoRepository
     {
-        private readonly ApplicationDBContext _context;
-
-        public TodoRepository(ApplicationDBContext context)
-        {
-            _context = context;
-        }
+        private readonly ApplicationDBContext _context = context;
 
         public async Task<Todo> AddTodoAsync(Todo todo)
         {
