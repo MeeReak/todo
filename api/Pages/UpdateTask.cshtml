@@ -1,0 +1,117 @@
+@page "{id:int}"
+
+<h1>Update Task</h1>
+<form id="update-form">
+    <input type="hidden" id="task-id">
+    
+    <label for="title">Title:</label>
+    <input type="text" id="title" required>
+    
+    <label for="status">Status:</label>
+    <select id="status">
+        <option value="0">ToDo</option>
+        <option value="1">In Progress</option>
+        <option value="2">Done</option>
+    </select>
+
+    <label for="description">Description:</label>
+    <textarea id="description" required></textarea>
+    
+    <button type="submit">Update Task</button>
+</form>
+
+<a href="/" class="back-btn">Back to List</a>
+
+<script>
+    async function fetchTaskDetails() {
+    const urlPath = window.location.pathname; 
+    const segments = urlPath.split('/'); 
+    const taskId = segments[segments.length - 1]; 
+
+        if (!taskId) {
+            alert("Invalid task ID");
+            window.location.href = "/";
+            return;
+        }
+
+        document.getElementById("task-id").value = taskId;
+
+        try {
+            const response = await fetch(`/v1/todos/${taskId}`); // Fetch task by ID
+            const task = await response.json();
+
+            document.getElementById("title").value = task.title;
+            document.getElementById("status").value = task.status;
+            document.getElementById("description").value = task.description;
+        } catch (error) {
+            console.error("Error fetching task details:", error);
+            alert("Failed to load task details.");
+        }
+    }
+
+    async function updateTask(event) {
+        event.preventDefault();
+
+        const taskId = document.getElementById("task-id").value;
+        const updatedTask = {
+            title: document.getElementById("title").value,
+            status: parseInt(document.getElementById("status").value),
+            description: document.getElementById("description").value,
+            userId: 0
+        };
+
+        try {
+            const response = await fetch(`/v1/todos/${taskId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedTask)
+            });
+
+            if (response.ok) {
+                alert("Task updated successfully!");
+                window.location.href = "/";
+            } else {
+                alert("Failed to update task.");
+            }
+        } catch (error) {
+            console.error("Error updating task:", error);
+            alert("Error updating task.");
+        }
+    }
+
+    document.getElementById("update-form").addEventListener("submit", updateTask);
+
+    fetchTaskDetails();
+</script>
+
+<style>
+    form {
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+    }
+
+    input, select, textarea {
+        margin-bottom: 10px;
+        padding: 8px;
+    }
+
+    button {
+        background: #28a745;
+        color: white;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 10px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .back-btn:hover {
+        text-decoration: underline;
+    }
+</style>

@@ -23,6 +23,7 @@ namespace api.Mappers
         {
             return new TodoDto
             {
+                Id = todo.Id,
                 Title = todo.Title,
                 Status = todo.Status,
                 Description = todo.Description,
