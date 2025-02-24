@@ -36,6 +36,7 @@ builder.Services.AddAuthentication(option =>
     option.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(option =>
 {
+#pragma warning disable CS8604 // Possible null reference argument.
     option.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -45,6 +46,7 @@ builder.Services.AddAuthentication(option =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])),
     };
+#pragma warning restore CS8604 // Possible null reference argument.
 });
 
 builder.Services.AddControllers();

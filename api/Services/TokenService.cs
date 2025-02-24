@@ -19,14 +19,18 @@ namespace C_App.Service
         public TokenService(IConfiguration config)
         {
             _config = config;
+#pragma warning disable CS8604 // Possible null reference argument.
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
+#pragma warning restore CS8604 // Possible null reference argument.
         }
         public string CreateToken(IdentityUser user)
         {
+#pragma warning disable CS8604 // Possible null reference argument.
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
             };
+#pragma warning restore CS8604 // Possible null reference argument.
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
