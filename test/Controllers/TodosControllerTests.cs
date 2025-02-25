@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using FluentAssertions;
-using Moq;
-using api.Models;
-using api.Services;
 using api.Controllers;
+using api.Dtos.Todo;
 using api.Helper;
 using api.Mappers;
+using api.Models;
+using api.Services;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using api.Dtos.Todo;
+using Moq;
 
 namespace test.Controllers
 {
@@ -26,7 +21,7 @@ namespace test.Controllers
         }
 
         [Fact]
-        public async Task GetTodos_ShouldReturnOk_WhenTodosExist()
+        public async Task GetTodos_ReturnsOkResult_WhenTodosExist()
         {
             //Arrange
             var todos = new List<Todo>{
@@ -37,13 +32,7 @@ namespace test.Controllers
                     Description = "Write a unit test then demo",
                     IsDeleted = false
                 },
-                new() {
-                    Id = 2,
-                    Title = "Unit Test with C#",
-                    Status = Status.InProgress,
-                    Description = "Write a unit test then demo",
-                    IsDeleted = false
-                }
+
             };
             _mockTodoService.Setup(x => x.GetTodosAsync()).ReturnsAsync([.. todos.Select(TodoMapper.ToDto)]);
 
@@ -57,7 +46,7 @@ namespace test.Controllers
         }
 
         [Fact]
-        public async Task GetTodo_ShouldReturnOk_WhenTodoExisted()
+        public async Task GetTodo_ReturnsOkResult_WhenTodoExists()
         {
             //Arrange
             var todo = new Todo
@@ -80,7 +69,7 @@ namespace test.Controllers
         }
 
         [Fact]
-        public async Task GetTodo_ShouldReturnNotFound_WhenTodoNotExisted()
+        public async Task GetTodo_ReturnsNotFound_WhenTodoDoesNotExist()
         {
             //Arrange
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -96,7 +85,7 @@ namespace test.Controllers
         }
 
         [Fact]
-        public async Task AddTodo_ShouldReturnTodo_WhenDone()
+        public async Task AddTodo_ReturnsCreatedTodo_WhenSuccessful()
         {
             //Arrange
             var todo = new TodoRequest
@@ -123,6 +112,76 @@ namespace test.Controllers
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(todoResponse);
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeOfType<TodoDto>().Which.Title.Should().Be("Unit Test with C#");
 
+        }
+
+        [Fact]
+        public async Task UpdateTodo_ReturnsUpdatedTodo_WhenSuccessful()
+        {
+            var todo = new Todo
+            {
+                Id = 1,
+                Title = "Unit Test with C#",
+                Status = Status.InProgress,
+                Description = "Write a unit test then demo",
+                IsDeleted = false
+            };
+            //arrange
+            var todoRequest = new TodoRequest
+            {
+                Title = "Testing Code",
+                Description = "The Code is Testing Me",
+                Status = Status.ToDo,
+            };
+            var updated = new TodoDto
+            {
+                Id = 1,
+                Title = "Testing Code",
+                Description = "The Code is Testing Me",
+                Status = Status.ToDo,
+                IsDeleted = false
+            };
+            _mockTodoService.Setup(x => x.UpdateTodoAsync(1, todoRequest)).ReturnsAsync(updated);
+
+            //act
+            var result = await _todoController.UpdateTodo(1, todoRequest);
+
+            //assert
+            result.Should().NotBeNull();
+            result.Should().NotBeEquivalentTo(todo);
+        }
+
+        [Fact]
+        public async Task DeleteTodo_ReturnsOkResult_WhenTodoExists()
+        {
+            //arrange
+            var todo = new Todo
+            {
+                Id = 1,
+                Title = "Unit Test with C#",
+                Status = Status.InProgress,
+                Description = "Write a unit test then demo",
+                IsDeleted = false
+            };
+            _mockTodoService.Setup(x => x.DeleteTodoAsync(1)).ReturnsAsync(TodoMapper.ToDto(todo));
+
+            //act
+            var result = await _todoController.DeleteTodo(1);
+
+            //assert
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task DeleteTodo_ReturnsNotFound_WhenTodoDoesNotExist()
+        {
+            // Arrange
+            _ = _mockTodoService.Setup(x => x.DeleteTodoAsync(2)).ReturnsAsync((TodoDto?)null);
+
+            // Act
+            var result = await _todoController.DeleteTodo(2);
+
+            // Assert
+            result.Should().BeOfType<NotFoundResult>();
         }
 
     }

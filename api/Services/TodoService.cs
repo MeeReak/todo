@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api.Dtos.Todo;
 using api.Mappers;
 using api.Repository.Interface;
@@ -13,6 +9,11 @@ namespace api.Services
 
         public async Task<TodoDto> AddTodoAsync(TodoRequest todoRequest)
         {
+            // Validate input
+            if (string.IsNullOrWhiteSpace(todoRequest.Title))
+            {
+                throw new ArgumentException("Title is required");
+            }
             var todoEntity = TodoMapper.ToEntity(todoRequest);
             var addedTodo = await _todoRepository.AddTodoAsync(todoEntity);
             return TodoMapper.ToDto(addedTodo);
@@ -38,6 +39,10 @@ namespace api.Services
 
         public async Task<TodoDto?> UpdateTodoAsync(int id, TodoRequest todoRequest)
         {
+            if (string.IsNullOrWhiteSpace(todoRequest.Title))
+            {
+                throw new ArgumentException("Title is required");
+            }
             var todoEntity = TodoMapper.ToEntity(todoRequest);
             var updatedTodo = await _todoRepository.UpdateTodoAsync(id, todoEntity);
 
